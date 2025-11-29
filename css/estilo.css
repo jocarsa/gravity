@@ -1,0 +1,27 @@
+body{overflow:hidden;background:black;color:white;padding:0px;margin:0px;image-rendering: -moz-crisp-edges;
+image-rendering: -moz-crisp-edges;
+image-rendering: -o-crisp-edges;
+image-rendering: -webkit-optimize-contrast;
+-ms-interpolation-mode: nearest-neighbor;}
+            
+            #lienzo{position:absolute;width:100%;height:100%;}
+			table{
+				position:absolute;
+				bottom:0px;
+				left:0px;
+				width:100%;
+			}
+			button{
+				width:100%;
+				height:100px;
+			}
+			#lienzo2{
+				position: absolute;
+    bottom: 50%;
+    left: 50%;
+    z-index: 10000;
+    margin-left: -150px;
+    margin-bottom: -150px;
+	display:none;
+				
+			}

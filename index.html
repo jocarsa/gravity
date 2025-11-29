@@ -1,0 +1,401 @@
+<html>
+    <head>
+        <link rel="Stylesheet" href="css/estilo.css">
+    </head>
+    <body>
+	<canvas id="lienzo" width=800px height=800px></canvas>
+	<canvas id="lienzo2" ></canvas>
+	<!--
+	<table wdith=100%;>
+		<tr>
+			<td><button id="izquierda">Izquierda</button></td>
+			<td><button id="derecha">Derecha</button></td>
+			<td><button id="disparo">C</button></td>
+			<td><button id="acelerar">Acelera</button></td>
+		</tr>
+	</table>
+	-->
+        <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
+        <script src="js/funciones.js"></script>
+        <script src="clases/Mundo.js"></script>
+        <script src="clases/Pared.js"></script>
+        <script src="clases/Estrella.js"></script>
+        <script src="clases/Recogible.js"></script>
+        <script src="clases/Roca.js"></script>
+        <script src="clases/Trayectoria.js"></script>
+        <script src="clases/Bala.js"></script>
+        <script src="clases/Estela.js"></script>
+        <script src="clases/Jugador.js"></script>
+        <script src="clases/Planeta.js"></script>
+        <script src="js/controles.js"></script>
+        <script src="js/marcadores.js"></script> 
+        <script src="js/colisionbalasrocas.js"></script>
+        <script src="js/colisionrocasrocas.js"></script>
+        <script src="js/colisionnaveroca.js"></script> 
+        <script src="js/colisionrocasplanetas.js"></script>
+        <script src="js/inicio.js"></script> 
+        <script src="js/cartelinicio.js"></script>
+        <script src="js/cogerrecogible.js"></script>  
+        <script src="js/pasardenivel.js"></script> 
+        <script src="js/recogibles.js"></script>
+        <script src="js/dibujacosas.js"></script>
+        <script src="js/jugadormuere.js"></script>
+		<script src="js/declaraciones.js"></script>
+        
+        
+        <script>      
+
+
+
+			class Circulo{
+                constructor(){
+                	this.t = Math.round(Math.random()*3)
+                   this.r = 0;
+                    this.a1 = Math.random()*Math.PI*2
+                    this.a2 = this.a1+Math.random()*Math.PI*2
+                    this.da1 = 0
+                    this.da2 = 0
+                    this.v = (Math.random()-0.5);
+                    this.d = 0;
+                }
+            }
+
+			var contexto2 = document.getElementById("lienzo2").getContext("2d")
+            contexto2.fillStyle = "rgba(255,255,255,0.1)"
+			
+           
+            var tiempo = 0;
+            var circulos = new Array();
+            var numerocirculos = 5;
+            var anchuracirculo = 10
+            contexto2.lineWidth = anchuracirculo+0.2;
+            contexto2.strokeStyle = "rgba(255,255,255,0.3)"
+            for(var i = 0;i<numerocirculos;i++){
+                circulos[i] = new Circulo();
+                circulos[i].r = i*anchuracirculo + 230
+            }
+			anchura2 = window.innerHeight
+			altura2 = anchura2
+			document.getElementById("lienzo2").width = anchura2
+			document.getElementById("lienzo2").height = altura2
+			document.getElementById("lienzo2").style.marginBottom = 0-altura2/2
+			document.getElementById("lienzo2").style.marginLeft = 0-altura2/2
+            inicio()
+            tiempo = 0;
+            function bucle(){
+			tiempo++;
+			// UI //////////////////////////////////////////////////
+			
+			
+			contexto2.clearRect(0,0,anchura2,altura2)
+			contexto2.strokeStyle = "rgba(255,255,255,0.3)"
+			contexto2.fillStyle = "rgba(255,255,255,0.1)"
+                for(var i = 0;i<numerocirculos;i++){
+					
+                    circulos[i].v += (Math.random()-0.5)*0.001
+                    circulos[i].a1 += Math.cos(tiempo*0.01)*0.001+Math.sin(circulos[i].v)*0.01
+                    circulos[i].a2 += Math.sin(tiempo*0.01)*0.001+Math.sin(circulos[i].v)*0.01
+                    switch(circulos[i].t){
+	                    	case 0:
+	                    		contexto2.beginPath();
+		                    contexto2.arc(anchura2/2,altura2/2,circulos[i].r,circulos[i].a1,circulos[i].a2,false)
+		                    contexto2.stroke();
+		                    contexto2.closePath();
+		                   
+	                    		break;
+	                    	case 1:
+	                    		contexto2.beginPath();
+	                    		contexto2.moveTo(
+									anchura2/2+Math.cos(circulos[i].a1)/2
+									,altura2/2+Math.sin(circulos[i].a1)/2
+									);
+								contexto2.arc(anchura2/2,altura2/2,circulos[i].r,circulos[i].a1,circulos[i].a2,false)
+								contexto2.lineTo(anchura2/2+Math.cos(circulos[i].a2)/2 
+									,altura2/2+Math.sin(circulos[i].a2)/2);
+									contexto2.arc(anchura2/2,altura2/2,circulos[i].r/2,circulos[i].a2,circulos[i].a1,true)
+		                    
+								contexto2.fill();
+								contexto2.closePath();
+	                    		break
+	                    	case 2:
+	                    	for(var j = circulos[i].a1;j < circulos[i].a2;j+=0.05){
+	                    	contexto2.beginPath();
+		                    contexto2.arc(anchura2/2,altura2/2,circulos[i].r,j,j+0.02,false)
+		                    contexto2.stroke();
+		                    contexto2.closePath();
+		                    }
+		                    contexto2.lineWidth = anchuracirculo+10;
+		                    contexto2.beginPath();
+		                    contexto2.arc(anchura2/2,altura2/2,circulos[i].r,circulos[i].a1,circulos[i].a1+0.02,false)
+		                    contexto2.stroke();
+		                    contexto2.closePath();
+		                    contexto2.beginPath();
+		                    contexto2.arc(anchura2/2,altura2/2,circulos[i].r,circulos[i].a2,circulos[i].a2+0.02,false)
+		                    contexto2.stroke();
+		                    contexto2.closePath();
+		                    contexto2.lineWidth = anchuracirculo+0.2;
+	                    		break;
+	                    	case 3:
+	                    		contexto2.lineWidth = 1;
+	                    		contexto2.beginPath();
+		                    contexto2.arc(anchura2/2,altura2/2,circulos[i].r,circulos[i].a1,circulos[i].a2,false)
+		                    contexto2.stroke();
+		                    contexto2.closePath();
+	                    	contexto2.lineWidth = anchuracirculo+0.2;
+	                    	
+	                    	contexto2.beginPath();
+	                    	contexto2.arc(anchura2/2+Math.cos(circulos[i].a1)*circulos[i].r,altura2/2+Math.sin(circulos[i].a1)*circulos[i].r,3,0,Math.PI*2,true);
+
+	                    	contexto2.fill();
+	                    	contexto2.closePath();
+	                    	
+	                    	contexto2.beginPath();
+	                    	contexto2.arc(anchura2/2+Math.cos(circulos[i].a2)*circulos[i].r,altura2/2+Math.sin(circulos[i].a2)*circulos[i].r,3,0,Math.PI*2,true);
+
+	                    	contexto2.fill();
+	                    	contexto2.closePath();
+	                    		break;
+                    }
+                    
+                }
+			
+			// UI //////////////////////////////////////////////////
+			
+			
+			
+			/*
+				if(jugador.x+desfasex > anchura*0.75){
+					desfasex-=velocidaddesfase
+					console.log("izquierda")
+				}
+				if(jugador.x+desfasex < anchura*0.25){
+					desfasex+=velocidaddesfase
+					console.log("derecha")
+				}
+				if(jugador.y+desfasey > altura*0.75){desfasey-=velocidaddesfase}
+				if(jugador.y+desfasey < altura*0.25){desfasey += velocidaddesfase}
+				*/
+				desfasex = -jugador.x+anchura/2
+				desfasey = -jugador.y+altura/2
+            	if(jugador.x*zoom < 0 || jugador.x*zoom > anchura || jugador.y*zoom < 0 || jugador.y*zoom > altura){
+            		zoom *= 1.1;
+            	}else{
+            		zoom = 1;
+            	}
+            	//console.log(zoom)
+            		tiempo++;
+            		
+                cartelinicio();
+                if(mueveangulo == 'izquierda'){jugador.angulo -= 0.06}
+                if(mueveangulo == 'derecha'){jugador.angulo += 0.06}
+				
+				
+                
+				
+				dibujacosas();
+				
+                jugador.mueve();
+                jugador.dibuja();
+                cogerrecogible();
+                colisionbalasrocas();
+                //colisionrocasrocas()
+                	if(jugador.atrapando == 1){
+                		console.log("atrapando")
+                		for(var i = 0;i<rocas.length;i++){
+                			distancia = Math.sqrt(Math.pow(jugador.x-rocas[i].x,2)+Math.pow(jugador.y-rocas[i].y,2))
+                			if(distancia < 100 && rocas[i].pariente == null){
+                				console.log("ok")
+                				rocas[i].pariente = 1
+                			}
+                			else if(distancia < 100 && rocas[i].pariente != null){
+                				rocas[i].velx = jugador.velx
+                				rocas[i].vely = jugador.vely
+                				rocas[i].angulo = jugador.angulo
+                				rocas[i].pariente = null
+                			}
+                		}
+                		jugador.atrapando = 0
+                	}
+                	for(var i = 0;i<numeroparedes;i++){
+                		paredes[i].dibuja();
+                		
+                		if(interseccion(
+                			jugador.x,
+                			jugador.y,
+                			jugador.x+Math.cos(jugador.angulo)*50,
+                         jugador.y+Math.sin(jugador.angulo)*50,
+                         paredes[i].x1,
+                         paredes[i].y1,
+                         paredes[i].x2,
+                         paredes[i].y2
+                      )
+                       ){
+                			console.log("colision")
+                			jugador.velx = 0-jugador.velx/2
+                			jugador.vely = 0-jugador.vely/2
+                			jugador.mueve()
+                			
+                		}
+                		
+                		
+                		
+                	}
+                	if(jugador.estatico == false){
+                	for(var i = 0;i<planetas.length;i++){
+                		
+                		var angleRadians = Math.atan2(planetas[i].y - jugador.y, planetas[i].x - jugador.x);
+                        var a = planetas[i].x - jugador.x;
+                        var b = planetas[i].y - jugador.y;
+
+                        var distancia = Math.sqrt( a*a + b*b );
+                        
+                        jugador.velx += (Math.cos(angleRadians)/distancia)*(planetas[i].m+1)
+	                     jugador.vely += (Math.sin(angleRadians)/distancia)*(planetas[i].m+1)
+	                     //console.log(jugador.velx+"-"+jugador.vely)
+	                     /*
+	                     if(distancia < planetas[i].radio){
+	                     	window.location = window.location;
+	                     }
+	                     */
+	                    if(Math.abs(distancia - planetas[i].radio) < 5
+	                     ){
+	                    		if(Math.abs(jugador.velx) < 3
+	                    	&& Math.abs(jugador.vely) < 3){
+	                    			jugador.velx = 0;
+	                    		jugador.vely = 0;
+	                    		jugador.estatico = true
+								jugador.pariente = i
+	                    		jugador.municion = 100;
+                	jugador.fuel = 100
+	                    		}else{
+	                    			jugador.visible = false
+	                    			jugador.estatico = true
+	                    			for(var k = 0;k<25;k++){
+	                                	console.log("creo nueva roca")
+	                                    rocas[rocas.length] = new Roca()
+	                                    rocas[rocas.length-1].x = jugador.x
+	                                    rocas[rocas.length-1].y = jugador.y
+	                                    rocas[rocas.length-1].radio = 3*Math.random()+5
+	                                    rocas[rocas.length-1].vel /= 3
+	                                    estelas[estelas.length] = new Estela()
+	                                    estelas[estelas.length-1].x = jugador.x
+	                                    estelas[estelas.length-1].y = jugador.y
+	                                    estelas[estelas.length-1].angulo = Math.PI*2*Math.random()
+	                                    estelas[estelas.length-1].radio = 3*Math.random()+5
+	                                }
+	                    			setTimeout(function(){
+	                    				window.location = window.location
+	                    			},3000)
+	                    			
+	                    		}
+	                    		
+	                    	}
+	                    
+                	}
+                	}
+                		
+                		externo:
+                		if(jugador.estatico == false){
+                			trayectorias = new Array()
+			            for(var i = 0;i<500;i++){
+			            		trayectorias[i] = new Trayectoria();
+			            }
+                		for(var i = 0;i<trayectorias.length;i++){
+                			if(i == 0){
+                				trayectorias[i].x = jugador.x
+                				trayectorias[i].y = jugador.y
+                				trayectorias[i].velx = jugador.velx
+                				trayectorias[i].vely = jugador.vely
+                			}else{
+                				trayectorias[i].x = trayectorias[i-1].x
+                				trayectorias[i].y = trayectorias[i-1].y
+                				trayectorias[i].velx = trayectorias[i-1].velx
+                				trayectorias[i].vely = trayectorias[i-1].vely
+                				
+                				for(var j = 0;j<planetas.length;j++){
+                		
+			                		var angleRadians = Math.atan2(planetas[j].y - trayectorias[i].y, planetas[j].x - trayectorias[i].x);
+			                        var a = planetas[j].x - trayectorias[i].x;
+			                        var b = planetas[j].y - trayectorias[i].y;
+			
+			                        var distancia = Math.sqrt( a*a + b*b );
+			                        
+			                        trayectorias[i].velx += (Math.cos(angleRadians)/distancia)*(planetas[j].m+1)
+				                     trayectorias[i].vely += (Math.sin(angleRadians)/distancia)*(planetas[j].m+1)
+				                     
+				                     if(distancia < planetas[j].radio){
+				                     	break externo;
+				                     }
+				                    
+			                	}
+                				
+                				trayectorias[i].x += trayectorias[i].velx 
+                				trayectorias[i].y += trayectorias[i].vely 
+                				trayectorias[i].dibuja()
+                			}
+                			
+                		}	
+                	}
+					pasardenivel();
+               for(var i = 0;i<rocas.length;i++){
+				   try{
+					
+						 for(var j = 0;j<planetas.length;j++){           		
+						py = planetas[j].y
+						px = planetas[j].x
+						ry = rocas[i].y
+						rx = rocas[i].x
+					
+						var angleRadians = Math.atan2(py - ry, px - rx);
+							var a = px - rx;
+							var b = py - ry;
+
+							var distancia = Math.sqrt( a*a + b*b );
+							
+							rocas[i].velx += (Math.cos(angleRadians)/distancia)*(planetas[j].m+1)
+							 rocas[i].vely += (Math.sin(angleRadians)/distancia)*(planetas[j].m+1)
+							 
+						 }    
+							 
+					}catch(error){
+					console.log(error)
+					}
+			   }
+			   
+			   for(var i = 0;i<balas.length;i++){
+				   try{
+					
+						 for(var j = 0;j<planetas.length;j++){           		
+						py = planetas[j].y
+						px = planetas[j].x
+						ry = balas[i].y
+						rx = balas[i].x
+					
+						var angleRadians = Math.atan2(py - ry, px - rx);
+							var a = px - rx;
+							var b = py - ry;
+
+							var distancia = Math.sqrt( a*a + b*b );
+							
+							balas[i].velx += (Math.cos(angleRadians)/distancia)*(planetas[j].m+1)
+							 balas[i].vely += (Math.sin(angleRadians)/distancia)*(planetas[j].m+1)
+							 
+						 }    
+							 
+					}catch(error){
+					console.log(error)
+					}
+			   }
+			   
+                colisionnaveroca();
+                 
+                recoge();        
+                marcadores();
+                jugadormuere();
+				console.log("numrocas:"+rocas.length)
+                clearTimeout(temporizador);
+                temporizador = setTimeout("bucle()",33);
+            }
+        </script>    
+    </body>
+</html>
